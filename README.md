@@ -1,4 +1,4 @@
-_Restaurant voting application_
+_bonus_points_system_
 ===============================
 Demo Rest API, made according to the test task of Sberbank. It is a crud service for working with bonus points.
 Administrators can accrue and write off points from any user.

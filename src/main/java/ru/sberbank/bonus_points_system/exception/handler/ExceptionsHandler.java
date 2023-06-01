@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import ru.sberbank.bonus_points_system.exception.AlreadyExistException;
+import ru.sberbank.bonus_points_system.exception.IllegalAccrualOperation;
+import ru.sberbank.bonus_points_system.exception.InsufficientBonusException;
 import ru.sberbank.bonus_points_system.exception.NotExistException;
 
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
@@ -28,16 +30,16 @@ public class ExceptionsHandler {
     }
 
     @ResponseBody
-    @ExceptionHandler
+    @ExceptionHandler({AlreadyExistException.class, InsufficientBonusException.class})
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
-    public ResponseError alreadyExistHandle(AlreadyExistException exception) {
+    public ResponseError refusedRequestHandle(Exception exception) {
         log.error(exception.getMessage(), exception);
         return new ResponseError(exception, HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
     @ResponseBody
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
-    @ExceptionHandler
+    @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseError dataIntegrityViolationExceptionHandle(DataIntegrityViolationException exception) {
         Throwable specificCause = exception.getMostSpecificCause();
         log.error(specificCause.getClass() + " : " + specificCause.getMessage());
@@ -47,7 +49,7 @@ public class ExceptionsHandler {
     @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler({MethodArgumentNotValidException.class, PropertyAccessException.class,
-            HttpMessageConversionException.class, IllegalArgumentException.class})
+            HttpMessageConversionException.class, IllegalArgumentException.class, IllegalAccrualOperation.class})
     public ResponseError badRequestHandle(Exception exception) {
         log.error(exception.getMessage(), exception);
         return new ResponseError(exception, HttpStatus.BAD_REQUEST);

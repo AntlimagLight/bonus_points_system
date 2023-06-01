@@ -1,5 +1,7 @@
 package ru.sberbank.bonus_points_system.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,8 +9,8 @@ import lombok.val;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import ru.sberbank.bonus_points_system.dao.BonusAccount;
-import ru.sberbank.bonus_points_system.repository.BonusAccountRepository;
+import ru.sberbank.bonus_points_system.dto.BonusAccountDto;
+import ru.sberbank.bonus_points_system.service.BonusService;
 
 import java.net.URI;
 import java.time.LocalDateTime;
@@ -19,47 +21,53 @@ import java.time.LocalDateTime;
 @Slf4j
 public class AdminBonusController {
 
-    private final BonusAccountRepository bonusAccountRepository;
+    private final BonusService bonusService;
 
+    @Operation(
+            summary = "Create Account",
+            description = "Administrator registers a new bonus account"
+    )
     @PostMapping
-    public ResponseEntity<BonusAccount> createAccount(@Valid @RequestBody BonusAccount account) {
+    public ResponseEntity<BonusAccountDto> createAccount(@Valid @RequestBody BonusAccountDto account) {
         log.info("create {}", account.getUsername());
-        account.setId(null);
-        account.setLastUpdate(LocalDateTime.now());
-        val created = bonusAccountRepository.save(account);
+        val created = bonusService.createBonusAccount(account);
         URI uriOfNewResource = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("/admin/bonus_accounts/{id}")
                 .buildAndExpand(created.getId()).toUri();
-        return ResponseEntity.created(uriOfNewResource).body(account);
+        return ResponseEntity.created(uriOfNewResource).body(created);
     }
 
-    @GetMapping("/{id}")
-    public BonusAccount getAccountById(@PathVariable Long id) {
-        log.info("get {}", id);
-        return null;
-    }
-
-    @GetMapping("/by-name")
-    public BonusAccount getAccountByName(@RequestParam String userName) {
-        log.info("get {}", userName);
-        return bonusAccountRepository.findByUsername(userName);
-    }
-
+    @Operation(
+            summary = "Update Account",
+            description = "Administrator updates the bonus account data without affecting the number of bonuses"
+    )
     @PutMapping("/{id}")
-    public void updateAccount(@PathVariable Long id, @Valid @RequestBody BonusAccount account) {
+    public void updateAccount(@PathVariable @Parameter(example = "1") Long id, @Valid @RequestBody BonusAccountDto account) {
         log.info("update {}", id);
+        bonusService.updateBonusAccount(id, account);
     }
 
+    @Operation(
+            summary = "Perform Operation",
+            description = "Administrator performs the operation of accruing or debiting bonuses " +
+                    "for an account with the specified ID"
+    )
     @PatchMapping("/{id}")
-    public void performOperation(@PathVariable Long id,
-                                 @RequestParam Double change,
-                                 @RequestParam String description) {
+    public void performOperation(@PathVariable @Parameter(example = "1") Long id,
+                                 @RequestParam @Parameter(example = "100") Double change,
+                                 @RequestParam @Parameter(example = "Test deposit") String description) {
         log.info("operation with Account {} - > {}, {}", id, change, description);
+        bonusService.processOperation(id, change, description);
     }
 
+    @Operation(
+            summary = "Delete Account",
+            description = "Administrator deletes account with the specified ID"
+    )
     @DeleteMapping("/{id}")
-    public void deleteAccount(@PathVariable Long id) {
+    public void deleteAccount(@PathVariable @Parameter(example = "1") Long id) {
         log.info("deleted {}", id);
+        bonusService.deleteBonusAccount(id);
     }
 
 
