@@ -14,7 +14,7 @@ import java.net.URI;
 import java.time.LocalDateTime;
 
 @RestController
-@RequestMapping("/admin")
+@RequestMapping("/admin/bonus_accounts")
 @RequiredArgsConstructor
 @Slf4j
 public class AdminBonusController {
@@ -22,7 +22,7 @@ public class AdminBonusController {
     private final BonusAccountRepository bonusAccountRepository;
 
     @PostMapping
-    public ResponseEntity<BonusAccount> createRestaurant(@Valid @RequestBody BonusAccount account) {
+    public ResponseEntity<BonusAccount> createAccount(@Valid @RequestBody BonusAccount account) {
         log.info("create {}", account.getUsername());
         account.setId(null);
         account.setLastUpdate(LocalDateTime.now());
@@ -33,9 +33,34 @@ public class AdminBonusController {
         return ResponseEntity.created(uriOfNewResource).body(account);
     }
 
-    @GetMapping("/by-name")
-    public BonusAccount getUserByEmail(@RequestParam String name) {
-        log.info("get {}", name);
-        return bonusAccountRepository.findByUsername(name);
+    @GetMapping("/{id}")
+    public BonusAccount getAccountById(@PathVariable Long id) {
+        log.info("get {}", id);
+        return null;
     }
+
+    @GetMapping("/by-name")
+    public BonusAccount getAccountByName(@RequestParam String userName) {
+        log.info("get {}", userName);
+        return bonusAccountRepository.findByUsername(userName);
+    }
+
+    @PutMapping("/{id}")
+    public void updateAccount(@PathVariable Long id, @Valid @RequestBody BonusAccount account) {
+        log.info("update {}", id);
+    }
+
+    @PatchMapping("/{id}")
+    public void performOperation(@PathVariable Long id,
+                                 @RequestParam Double change,
+                                 @RequestParam String description) {
+        log.info("operation with Account {} - > {}, {}", id, change, description);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteAccount(@PathVariable Long id) {
+        log.info("deleted {}", id);
+    }
+
+
 }

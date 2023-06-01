@@ -35,7 +35,7 @@ public class BonusAccount {
     private LocalDateTime lastUpdate;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "account")
-//    @OrderBy("dateTime DESC")
+    @OrderBy("dateTime DESC")
     @ToString.Exclude
     @JsonIgnore
     private List<BonusOperation> operations;

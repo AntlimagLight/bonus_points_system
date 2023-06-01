@@ -30,10 +30,14 @@ public class BonusOperation {
     @JsonIgnore
     private BonusAccount account;
 
+    @Column(name = "description", updatable = false)
+    private String description;
+
     @Column(name = "operation_time", nullable = false, updatable = false)
     private LocalDateTime dateTime;
 
     @Column(name = "change", nullable = false, updatable = false)
     private BigDecimal change;
+
 
 }
