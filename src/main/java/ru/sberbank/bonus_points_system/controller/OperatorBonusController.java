@@ -2,12 +2,16 @@ package ru.sberbank.bonus_points_system.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.sberbank.bonus_points_system.dto.BonusAccountDto;
+import ru.sberbank.bonus_points_system.dto.BonusOperationDto;
 import ru.sberbank.bonus_points_system.exception.IllegalAccrualOperation;
 import ru.sberbank.bonus_points_system.service.BonusService;
+
+import java.math.BigDecimal;
 
 @RestController
 @RequestMapping("/operator/bonus_accounts")
@@ -44,14 +48,14 @@ public class OperatorBonusController {
     )
     @PatchMapping("/{id}")
     public void spendPoints(@PathVariable @Parameter(example = "1") Long id,
-                            @RequestParam @Parameter(example = "-10") Double change,
-                            @RequestParam @Parameter(example = "Test debit") String description) {
-        log.info("deduct points from Account {} - > {}, {}", id, change, description);
-        if (change > 0) throw new IllegalAccrualOperation("This operation must be a debit operation. " +
-                "The transferred value of points must not be greater than 0.");
-        bonusService.processOperation(id, change, description);
-
+                                 @Valid @RequestBody BonusOperationDto bonusOperationDto) {
+        log.info("deduct points from Account {} - > {}", id,bonusOperationDto.toString());
+        if (bonusOperationDto.getChange().compareTo(BigDecimal.ZERO) > 0) {
+            throw new IllegalAccrualOperation("This operation must be a debit operation. " +
+                    "The transferred value of points must not be greater than 0.");
+        }
+        bonusService.processOperation(id, bonusOperationDto);
     }
 
-
 }
+

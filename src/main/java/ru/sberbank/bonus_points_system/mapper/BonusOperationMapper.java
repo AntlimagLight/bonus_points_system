@@ -7,8 +7,8 @@ import ru.sberbank.bonus_points_system.dto.BonusOperationDto;
 @Mapper(componentModel = "spring", uses = BonusOperationMapper.class)
 public interface BonusOperationMapper {
 
-    BonusOperation toDto(BonusOperationDto bonusOperationDto);
+    BonusOperationDto toDto(BonusOperation bonusOperation);
 
-    BonusOperationDto toDao(BonusOperation bonusOperation);
+    BonusOperation toDao(BonusOperationDto bonusOperationDto);
 
 }

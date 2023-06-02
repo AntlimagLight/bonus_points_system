@@ -12,13 +12,13 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor(access = AccessLevel.PUBLIC)
+@NoArgsConstructor
 @ToString
 @Table(name = "bonus_accounts", indexes = @Index(columnList = "username", name = "username_idx", unique = true))
 public class BonusAccount {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "username", nullable = false)

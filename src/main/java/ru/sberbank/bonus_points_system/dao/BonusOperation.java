@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 public class BonusOperation {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -37,6 +37,9 @@ public class BonusOperation {
 
     @Column(name = "change", nullable = false, updatable = false)
     private BigDecimal change;
+
+    @Column(name = "external_id", nullable = false, updatable = false)
+    private String externalID;
 
 
 }

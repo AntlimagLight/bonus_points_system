@@ -31,6 +31,7 @@ public class BonusAccountDto {
     @Min(0)
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private BigDecimal bonus;
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)

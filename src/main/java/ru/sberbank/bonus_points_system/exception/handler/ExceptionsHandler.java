@@ -10,10 +10,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import ru.sberbank.bonus_points_system.exception.AlreadyExistException;
-import ru.sberbank.bonus_points_system.exception.IllegalAccrualOperation;
-import ru.sberbank.bonus_points_system.exception.InsufficientBonusException;
-import ru.sberbank.bonus_points_system.exception.NotExistException;
+import ru.sberbank.bonus_points_system.exception.*;
 
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
@@ -49,7 +46,8 @@ public class ExceptionsHandler {
     @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler({MethodArgumentNotValidException.class, PropertyAccessException.class,
-            HttpMessageConversionException.class, IllegalArgumentException.class, IllegalAccrualOperation.class})
+            HttpMessageConversionException.class, IllegalArgumentException.class, IllegalAccrualOperation.class,
+            DoubleOperationException.class})
     public ResponseError badRequestHandle(Exception exception) {
         log.error(exception.getMessage(), exception);
         return new ResponseError(exception, HttpStatus.BAD_REQUEST);

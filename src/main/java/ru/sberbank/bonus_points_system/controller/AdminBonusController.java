@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import ru.sberbank.bonus_points_system.dto.BonusAccountDto;
+import ru.sberbank.bonus_points_system.dto.BonusOperationDto;
 import ru.sberbank.bonus_points_system.service.BonusService;
 
 import java.net.URI;
@@ -54,10 +55,9 @@ public class AdminBonusController {
     )
     @PatchMapping("/{id}")
     public void performOperation(@PathVariable @Parameter(example = "1") Long id,
-                                 @RequestParam @Parameter(example = "100") Double change,
-                                 @RequestParam @Parameter(example = "Test deposit") String description) {
-        log.info("operation with Account {} - > {}, {}", id, change, description);
-        bonusService.processOperation(id, change, description);
+                                 @Valid @RequestBody BonusOperationDto bonusOperationDto) {
+        log.info("operation with Account {} - > {}", id,bonusOperationDto.toString());
+        bonusService.processOperation(id, bonusOperationDto);
     }
 
     @Operation(

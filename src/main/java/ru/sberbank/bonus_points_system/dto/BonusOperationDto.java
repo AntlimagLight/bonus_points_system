@@ -22,7 +22,7 @@ public class BonusOperationDto {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long id;
 
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY, example = "Test deposit")
+    @Schema(example = "Test deposit")
     @Size(max = 256)
     private String description;
 
@@ -31,7 +31,11 @@ public class BonusOperationDto {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private LocalDateTime dateTime;
 
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    @Schema(example = "-10")
     private BigDecimal change;
+
+    @Size(max = 256)
+    @Schema(example = "E999111")
+    private String externalID;
 }
