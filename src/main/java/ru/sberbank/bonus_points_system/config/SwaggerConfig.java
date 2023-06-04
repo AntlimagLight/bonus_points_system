@@ -1,8 +1,10 @@
 package ru.sberbank.bonus_points_system.config;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 
 
 @OpenAPIDefinition(
@@ -11,6 +13,10 @@ import io.swagger.v3.oas.annotations.info.Info;
                 description = """
                         Demo Rest API, made according to the test task of Sberbank.<br>
                         It is a crud service for working with bonus points.
+                        To get started, you should log in, to do this:
+                        1) call the method /auth/login
+                        2) pass the username and password to it.
+                        3) The access token received in response from the server can be used within 10 minutes.
                         
                         <b>Credentials:</b><br>
                         User: user_zero@yandex.ru / pass12<br>
@@ -23,9 +29,11 @@ import io.swagger.v3.oas.annotations.info.Info;
                 )
         )
 )
-//@SecurityScheme(
-//        type = SecuritySchemeType.HTTP,
-//        name = "basicAuth",
-//        scheme = "basic")
+@SecurityScheme(
+        name = "Bearer Authentication",
+        type = SecuritySchemeType.HTTP,
+        bearerFormat = "JWT",
+        scheme = "bearer"
+)
 public class SwaggerConfig {
 }

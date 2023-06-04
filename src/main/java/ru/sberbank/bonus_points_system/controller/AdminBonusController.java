@@ -2,11 +2,13 @@ package ru.sberbank.bonus_points_system.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import ru.sberbank.bonus_points_system.dto.BonusAccountDto;
@@ -14,12 +16,13 @@ import ru.sberbank.bonus_points_system.dto.BonusOperationDto;
 import ru.sberbank.bonus_points_system.service.BonusService;
 
 import java.net.URI;
-import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/admin/bonus_accounts")
 @RequiredArgsConstructor
 @Slf4j
+@PreAuthorize("hasAuthority('ADMIN')")
+@SecurityRequirement(name = "Bearer Authentication")
 public class AdminBonusController {
 
     private final BonusService bonusService;
@@ -56,8 +59,8 @@ public class AdminBonusController {
     @PatchMapping("/{id}")
     public void performOperation(@PathVariable @Parameter(example = "1") Long id,
                                  @Valid @RequestBody BonusOperationDto bonusOperationDto) {
-        log.info("operation with Account {} - > {}", id,bonusOperationDto.toString());
-        bonusService.processOperation(id, bonusOperationDto);
+        log.info("operation with Account {} - > {}", id, bonusOperationDto.toString());
+        bonusService.startOperation(id, bonusOperationDto);
     }
 
     @Operation(
@@ -65,6 +68,7 @@ public class AdminBonusController {
             description = "Administrator deletes account with the specified ID"
     )
     @DeleteMapping("/{id}")
+    @SecurityRequirement(name = "Bearer Authentication")
     public void deleteAccount(@PathVariable @Parameter(example = "1") Long id) {
         log.info("deleted {}", id);
         bonusService.deleteBonusAccount(id);

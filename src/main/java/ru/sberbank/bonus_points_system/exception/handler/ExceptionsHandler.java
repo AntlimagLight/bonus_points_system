@@ -5,6 +5,7 @@ import org.springframework.beans.PropertyAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageConversionException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -41,6 +42,14 @@ public class ExceptionsHandler {
         Throwable specificCause = exception.getMostSpecificCause();
         log.error(specificCause.getClass() + " : " + specificCause.getMessage());
         return new ResponseError(specificCause, HttpStatus.UNPROCESSABLE_ENTITY);
+    }
+
+    @ResponseBody
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseError accessExceptionHandle(Exception exception) {
+        log.error(exception.getMessage(), exception);
+        return new ResponseError(exception, HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
     @ResponseBody

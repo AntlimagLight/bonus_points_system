@@ -2,13 +2,18 @@ package ru.sberbank.bonus_points_system.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+import ru.sberbank.bonus_points_system.dao.BonusAccount;
 import ru.sberbank.bonus_points_system.dto.BonusAccountDto;
 import ru.sberbank.bonus_points_system.dto.BonusOperationDto;
+import ru.sberbank.bonus_points_system.dto.PageOfBonusOperation;
 import ru.sberbank.bonus_points_system.exception.DoubleOperationException;
 import ru.sberbank.bonus_points_system.exception.InsufficientBonusException;
+import ru.sberbank.bonus_points_system.exception.NotExistException;
 import ru.sberbank.bonus_points_system.mapper.BonusAccountMapper;
 import ru.sberbank.bonus_points_system.mapper.BonusOperationMapper;
 import ru.sberbank.bonus_points_system.repository.BonusAccountRepository;
@@ -58,7 +63,7 @@ public class BonusService {
 
     @Transactional
     public void updateBonusAccount(Long id, BonusAccountDto bonusAccountDto) {
-        var account = assertExistence(bonusAccountRepository.findById(id), "Account with this ID");
+        val account = assertExistence(bonusAccountRepository.findById(id), "Account with this ID");
         account.setUsername(bonusAccountDto.getUsername());
         account.setVersion(account.getVersion() + 1);
         account.setLastUpdate(ZonedDateTime.of(LocalDateTime.now(), ZoneId.of("Europe/Moscow")).toLocalDateTime());
@@ -70,16 +75,40 @@ public class BonusService {
         bonusAccountRepository.deleteById(id);
     }
 
+    @Transactional(readOnly = true)
+    public PageOfBonusOperation getOperationHistory(String username, LocalDateTime startTime, LocalDateTime endTime,
+                                                    Pageable pageable) {
+        val account = bonusAccountRepository.getReferenceByUsername(username);
+        val page = bonusOperationRepository
+                .findAllByAccountAndDateTimeAfterAndDateTimeBefore(account, startTime, endTime, pageable)
+                .map(bonusOperationMapper::toDto);
+        if (page.getContent().isEmpty()) {
+            throw new NotExistException("Blank page requested");
+        }
+        return new PageOfBonusOperation(page.getTotalPages(), page.getTotalElements(), page.getSize(),
+                page.getNumber(), page.getContent());
+    }
+
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public void processOperation(Long id, BonusOperationDto operationDto) {
-        var account = assertExistence(bonusAccountRepository.findById(id),
+    public void startOperation(Long id, BonusOperationDto operationDto) {
+        val account = assertExistence(bonusAccountRepository.findById(id),
                 "Account with this ID not found");
-        var time = ZonedDateTime.of(LocalDateTime.now(), ZoneId.of("Europe/Moscow")).toLocalDateTime();
-        var operation = bonusOperationMapper.toDao(operationDto);
+        processOperation(account, operationDto);
+    }
+
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public void startOperation(String username, BonusOperationDto operationDto) {
+        val account = assertExistence(bonusAccountRepository.findByUsername(username),
+                "Account with this username not found");
+        processOperation(account, operationDto);
+    }
+
+    private void processOperation(BonusAccount account, BonusOperationDto operationDto) {
+        val time = ZonedDateTime.of(LocalDateTime.now(), ZoneId.of("Europe/Moscow")).toLocalDateTime();
+        val operation = bonusOperationMapper.toDao(operationDto);
         operation.setAccount(account);
         operation.setDateTime(time);
-        bonusOperationRepository.save(operation);
-        var newBonus = account.getBonus().add(operationDto.getChange());
+        val newBonus = account.getBonus().add(operationDto.getChange());
         if (newBonus.compareTo(BigDecimal.ZERO) < 0) {
             throw new InsufficientBonusException("Not enough bonuses for this operation");
         }
@@ -87,17 +116,11 @@ public class BonusService {
                 account, time.minusHours(1))) {
             throw new DoubleOperationException("Duplicate operation detected");
         }
+        bonusOperationRepository.save(operation);
         account.setBonus(newBonus);
         account.setVersion(account.getVersion() + 1);
         account.setLastUpdate(time);
     }
-
-//    public void test(String externalID, Long id) {
-//
-//
-//    }
-
-    // TODO Get Audit
 
 
 }

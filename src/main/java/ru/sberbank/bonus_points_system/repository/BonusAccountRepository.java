@@ -8,4 +8,6 @@ import java.util.Optional;
 public interface BonusAccountRepository extends JpaRepository<BonusAccount, Long> {
 
     Optional<BonusAccount> findByUsername(String username);
+
+    BonusAccount getReferenceByUsername(String username);
 }

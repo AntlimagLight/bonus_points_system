@@ -1,5 +1,7 @@
 package ru.sberbank.bonus_points_system.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import ru.sberbank.bonus_points_system.dao.BonusAccount;
 import ru.sberbank.bonus_points_system.dao.BonusOperation;
@@ -10,4 +12,8 @@ public interface BonusOperationRepository extends JpaRepository<BonusOperation, 
 
     Boolean existsByExternalIDAndAccountAndDateTimeAfter(String externalID, BonusAccount account,
                                                          LocalDateTime localDateTime);
+
+    Page<BonusOperation> findAllByAccountAndDateTimeAfterAndDateTimeBefore(BonusAccount account, LocalDateTime startTime,
+                                                                           LocalDateTime endTime, Pageable pageable);
+
 }
