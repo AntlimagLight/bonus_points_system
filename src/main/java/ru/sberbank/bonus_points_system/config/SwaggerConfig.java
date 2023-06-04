@@ -17,11 +17,11 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
                         1) call the method /auth/login
                         2) pass the username and password to it.
                         3) The access token received in response from the server can be used within 10 minutes.
-                        
+                                                
                         <b>Credentials:</b><br>
-                        User: user_zero@yandex.ru / pass12<br>
-                        User: user@yandex.ru / password<br>
-                        Admin: admin@gmail.com / admin""",
+                        User: user / pass12<br>
+                        Operator: operator / pass34<br>
+                        Admin: admin / admin56""",
                 version = "1.0",
                 contact = @Contact(
                         name = "Anton Dvorko",

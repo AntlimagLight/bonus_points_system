@@ -16,7 +16,6 @@ import ru.sberbank.bonus_points_system.dto.BonusAccountDto;
 import ru.sberbank.bonus_points_system.dto.BonusOperationDto;
 import ru.sberbank.bonus_points_system.dto.PageOfBonusOperation;
 import ru.sberbank.bonus_points_system.exception.IllegalAccrualOperation;
-import ru.sberbank.bonus_points_system.security.JwtAuthentication;
 import ru.sberbank.bonus_points_system.service.AuthService;
 import ru.sberbank.bonus_points_system.service.BonusService;
 
@@ -42,7 +41,7 @@ public class UserBonusController {
     @PostMapping("/register_ba")
     public ResponseEntity<BonusAccountDto> registerBonusAcc() {
         val account = BonusAccountDto.builder()
-                .username(authService.getAuthInfo().getUsername())
+                .username(authService.getAuthInfo().getLogin())
                 .build();
         log.info("register {}", account.getUsername());
         val created = bonusService.createBonusAccount(account);
@@ -53,25 +52,14 @@ public class UserBonusController {
     }
 
     @Operation(
-            summary = "Get auth info",
-            description = "The user receives information about his auth session"
-    )
-    @GetMapping("/auth_info")
-    public JwtAuthentication authInfo() {
-        val authInfo = authService.getAuthInfo();
-        log.info("get auth Information {}", authInfo.getUsername());
-        return authInfo;
-    }
-
-    @Operation(
             summary = "Get bonus account",
             description = "The user receives information about the state of his account."
     )
     @GetMapping("/bonus")
     public BonusAccountDto getAccount() {
         val authInfo = authService.getAuthInfo();
-        log.info("get bonus account by user {}", authInfo.getUsername());
-        return bonusService.getBonusAccountByName(authInfo.getUsername());
+        log.info("get bonus account by user {}", authInfo.getLogin());
+        return bonusService.getBonusAccountByName(authInfo.getLogin());
     }
 
     @Operation(
@@ -82,12 +70,12 @@ public class UserBonusController {
     @PatchMapping("/bonus")
     public void spendPoints(@Valid @RequestBody BonusOperationDto bonusOperationDto) {
         val authInfo = authService.getAuthInfo();
-        log.info("deduct points from Account {} - > {}", authInfo.getUsername(), bonusOperationDto.toString());
+        log.info("deduct points from Account {} - > {}", authInfo.getLogin(), bonusOperationDto.toString());
         if (bonusOperationDto.getChange().compareTo(BigDecimal.ZERO) > 0) {
             throw new IllegalAccrualOperation("This operation must be a debit operation. " +
                     "The transferred value of points must not be greater than 0.");
         }
-        bonusService.startOperation(authInfo.getUsername(), bonusOperationDto);
+        bonusService.startOperation(authInfo.getLogin(), bonusOperationDto);
     }
 
     @Operation(
@@ -100,10 +88,10 @@ public class UserBonusController {
                                                     @RequestParam @Parameter(example = "0") Integer pageNumber,
                                                     @RequestParam @Parameter(example = "10") Integer pageSize) {
         val authInfo = authService.getAuthInfo();
-        log.info("get operations by user {}, from {} to {}, page {} / {}", authInfo.getUsername(),
+        log.info("get operations by user {}, from {} to {}, page {} / {}", authInfo.getLogin(),
                 startTime, endTime, pageNumber, pageSize);
         val pageRequest = PageRequest.of(pageNumber, pageSize);
-        return bonusService.getOperationHistory(authInfo().getUsername(), LocalDateTime.now().minusMonths(1),
+        return bonusService.getOperationHistory(authInfo.getLogin(), LocalDateTime.now().minusMonths(1),
                 LocalDateTime.now(), pageRequest);
     }
 

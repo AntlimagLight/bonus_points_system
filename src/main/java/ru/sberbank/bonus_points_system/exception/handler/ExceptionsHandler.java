@@ -49,7 +49,7 @@ public class ExceptionsHandler {
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseError accessExceptionHandle(Exception exception) {
         log.error(exception.getMessage(), exception);
-        return new ResponseError(exception, HttpStatus.UNPROCESSABLE_ENTITY);
+        return new ResponseError(exception, HttpStatus.UNAUTHORIZED);
     }
 
     @ResponseBody

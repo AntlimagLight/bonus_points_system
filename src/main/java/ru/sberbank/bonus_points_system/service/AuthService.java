@@ -15,6 +15,8 @@ import ru.sberbank.bonus_points_system.security.dto.JwtResponse;
 import java.util.HashMap;
 import java.util.Map;
 
+import static ru.sberbank.bonus_points_system.config.WebSecurityConfig.PASSWORD_ENCODER;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -27,7 +29,7 @@ public class AuthService {
         try {
             val user = userService.getByLogin(authRequest.getLogin())
                     .orElseThrow(() -> new AuthException("User not found"));
-            if (user.getPassword().equals(authRequest.getPassword())) {
+            if (PASSWORD_ENCODER.matches(authRequest.getPassword(), user.getPassword())) {
                 val accessToken = jwtProvider.generateAccessToken(user);
                 val refreshToken = jwtProvider.generateRefreshToken(user);
                 refreshStorage.put(user.getLogin(), refreshToken);

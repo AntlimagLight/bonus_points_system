@@ -8,9 +8,9 @@ import lombok.Setter;
 @Getter
 public class JwtRequest {
 
-    @Schema(example = "ivan")
+    @Schema(example = "admin")
     private String login;
-    @Schema(example = "123456")
+    @Schema(example = "admin56")
     private String password;
 
 }
