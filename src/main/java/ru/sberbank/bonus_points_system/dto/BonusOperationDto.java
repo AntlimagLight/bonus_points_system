@@ -36,6 +36,6 @@ public class BonusOperationDto {
     private BigDecimal change;
 
     @Size(max = 256)
-    @Schema(example = "E999111")
+    @Schema(example = "AHT984")
     private String externalID;
 }

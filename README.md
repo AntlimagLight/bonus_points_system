@@ -1,8 +1,11 @@
 _bonus_points_system_
 ===============================
 Demo Rest API, made according to the test task of Sberbank. It is a crud service for working with bonus points.
-Administrators can accrue and write off points from any user.
-Operators can spend and deduct points from any user.
+Only authorized users can use the system.
+To use the bonus account, the user must first register an account.
+
+Administrators can accrue and debit points from any user.
+Operators can debit points from any user.
 The user can only spend points from himself.
 
 ##### Current Version 1.0
@@ -26,8 +29,10 @@ Design a service for writing off and accruing bonus points for program customers
 - The balance of points cannot be less than zero.
 - Protection against double write-offs should be provided.
 - API should contain documentation and instructions for deployment.
-- User information comes from another service.
 - Code should be covered by tests.
+
+Bonus: Add an authorization implementation to the server using the JWT Token. 
+User storage. Issuance of tokens. Validation of tokens.
 
 ------------------
 

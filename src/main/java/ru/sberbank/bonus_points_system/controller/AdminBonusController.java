@@ -29,7 +29,7 @@ public class AdminBonusController {
 
     @Operation(
             summary = "Create Account",
-            description = "Administrator registers a new bonus account"
+            description = "The administrator registers a new bonus account for the user with the specified ID"
     )
     @PostMapping
     public ResponseEntity<BonusAccountDto> createAccount(@Valid @RequestParam Long userId) {

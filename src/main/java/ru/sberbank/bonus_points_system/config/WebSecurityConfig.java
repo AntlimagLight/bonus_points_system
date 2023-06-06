@@ -34,7 +34,7 @@ public class WebSecurityConfig {
                 .and()
                 .authorizeHttpRequests(
                         authz -> authz
-                                .requestMatchers("/auth/login", "/auth/token").permitAll()
+                                .requestMatchers("/auth/login", "/auth/token", "/auth/register").permitAll()
                                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                                 .anyRequest().authenticated()
                                 .and()

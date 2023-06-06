@@ -28,7 +28,7 @@ public class AdminUserController {
 
     @Operation(
             summary = "Create User",
-            description = "Administrator creates new user"
+            description = "Administrator creates a new user and can set any roles for him"
     )
     @PostMapping
     public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto userDto) {
@@ -42,7 +42,7 @@ public class AdminUserController {
 
     @Operation(
             summary = "Update User",
-            description = "Administrator updates the user data.Login is not updatable field"
+            description = "Administrator updates the user data. Login is not updatable field"
     )
     @PutMapping("/{id}")
     public void updateUser(@PathVariable @Parameter(example = "3") Long id, @Valid @RequestBody UserDto userDto) {
@@ -72,7 +72,7 @@ public class AdminUserController {
 
     @Operation(
             summary = "Delete User",
-            description = "Administrator deletes user"
+            description = "Administrator deletes user with the specified ID"
     )
     @DeleteMapping("/{id}")
     public void deleteUser(@PathVariable @Parameter(example = "3") Long id) {
@@ -82,7 +82,7 @@ public class AdminUserController {
 
     @Operation(
             summary = "Set Enabled",
-            description = "Uses for block or unblock user"
+            description = "Uses for block or unblock user with the specified ID"
     )
     @PatchMapping("/{id}")
     public void setEnabled(@PathVariable @Parameter(example = "3") Long id,

@@ -31,15 +31,6 @@ public class UserService {
     public UserService(UserRepository userRepository, UserMapper userMapper) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
-        if (!this.userRepository.existsByLogin("admin")) this.userRepository.save(new User(null, "Иван",
-                "admin", PASSWORD_ENCODER.encode("admin56"), "ivan@gmail.com",
-                LocalDate.now(), true, Role.USER, Role.OPERATOR, Role.ADMIN));
-        if (!this.userRepository.existsByLogin("operator")) this.userRepository.save(new User(null, "Лидия",
-                "operator", PASSWORD_ENCODER.encode("pass34"), "lida@gmail.com",
-                LocalDate.now(), true, Role.USER, Role.OPERATOR));
-        if (!this.userRepository.existsByLogin("user")) this.userRepository.save(new User(null, "Евгений",
-                "user", PASSWORD_ENCODER.encode("pass12"), "evgeniy@gmail.com",
-                LocalDate.now(), true, Role.USER));
     }
 
     public void registerAuthService(AuthService authService) {

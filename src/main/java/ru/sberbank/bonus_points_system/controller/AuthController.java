@@ -2,17 +2,25 @@ package ru.sberbank.bonus_points_system.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import ru.sberbank.bonus_points_system.dto.UserDto;
 import ru.sberbank.bonus_points_system.security.JwtAuthentication;
 import ru.sberbank.bonus_points_system.security.dto.JwtRequest;
 import ru.sberbank.bonus_points_system.security.dto.JwtResponse;
 import ru.sberbank.bonus_points_system.security.dto.RefreshJwtRequest;
 import ru.sberbank.bonus_points_system.service.AuthService;
+import ru.sberbank.bonus_points_system.service.UserService;
+
+import java.net.URI;
+
+import static ru.sberbank.bonus_points_system.util.UserUtils.STARTING_ROLES;
 
 @RestController
 @RequestMapping("/auth")
@@ -21,6 +29,22 @@ import ru.sberbank.bonus_points_system.service.AuthService;
 public class AuthController {
 
     private final AuthService authService;
+    private final UserService userService;
+
+    @Operation(
+            summary = "Register new User",
+            description = "Register new user, roles set to User"
+    )
+    @PostMapping("/register")
+    public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto userDto) {
+        log.info("create {}", userDto.getLogin());
+        userDto.setRoles(STARTING_ROLES);
+        val created = userService.create(userDto);
+        URI uriOfNewResource = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("/admin/users/{id}")
+                .buildAndExpand(created.getId()).toUri();
+        return ResponseEntity.created(uriOfNewResource).body(created);
+    }
 
     @Operation(
             summary = "Login",
