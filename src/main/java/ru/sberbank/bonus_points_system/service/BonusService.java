@@ -86,7 +86,7 @@ public class BonusService {
                 page.getNumber(), page.getContent());
     }
 
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    @Transactional
     public void processOperation(Long userId, BonusOperationDto operationDto) {
         val account = assertExistence(bonusAccountRepository.findByUser(userRepository.getReferenceById(userId)),
                 "Account with this username not found");

@@ -31,6 +31,7 @@ public class BonusAccount {
     @Range(min = 0)
     private BigDecimal bonus;
 
+    @Version
     @Column(name = "version", nullable = false)
     private Integer version;
 

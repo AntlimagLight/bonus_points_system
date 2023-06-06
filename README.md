@@ -10,6 +10,9 @@ The user can only spend points from himself.
 
 ##### Current Version 1.0
 
+Note. This application implements only the necessary minimum + just a few tricks for convenience. 
+For full-fledged comfortable operation of the system, it is necessary to expand the functionality with new methods.
+
 [Project on GitHub](https://github.com/AntlimagLight/bonus_points_system)
 Designed by [AntimagLight](https://www.linkedin.com/in/anton-dvorko-53a545263/)
 

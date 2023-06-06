@@ -5,6 +5,7 @@ import org.springframework.beans.PropertyAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageConversionException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -45,6 +46,14 @@ public class ExceptionsHandler {
     }
 
     @ResponseBody
+    @ResponseStatus(HttpStatus.LOCKED)
+    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+    public ResponseError lockingExceptionHandle(ObjectOptimisticLockingFailureException exception) {
+        log.error(exception.getMessage(), exception);
+        return new ResponseError(exception, HttpStatus.LOCKED);
+    }
+
+    @ResponseBody
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseError accessExceptionHandle(Exception exception) {
@@ -63,7 +72,7 @@ public class ExceptionsHandler {
     }
 
     @ResponseBody
-    @ResponseStatus(INTERNAL_SERVER_ERROR)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler
     public ResponseError defaultErrorHandle(Throwable throwable) {
         log.error(throwable.getClass().getName() + " : " + throwable.getMessage());
