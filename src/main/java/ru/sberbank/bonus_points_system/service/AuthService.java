@@ -1,6 +1,6 @@
 package ru.sberbank.bonus_points_system.service;
 
-import jakarta.security.auth.message.AuthException;
+import jakarta.annotation.PostConstruct;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
@@ -25,61 +25,58 @@ public class AuthService {
     private final Map<String, String> refreshStorage = new HashMap<>(); //Подключить Redis вместо мапы по возможности
     private final JwtProvider jwtProvider;
 
+    @PostConstruct
+    public void linkUserService() {
+        userService.registerAuthService(this);
+    }
+
     public JwtResponse login(@NonNull JwtRequest authRequest) {
-        try {
-            val user = userService.getByLogin(authRequest.getLogin())
-                    .orElseThrow(() -> new AuthException("User not found"));
-            if (PASSWORD_ENCODER.matches(authRequest.getPassword(), user.getPassword())) {
-                val accessToken = jwtProvider.generateAccessToken(user);
-                val refreshToken = jwtProvider.generateRefreshToken(user);
-                refreshStorage.put(user.getLogin(), refreshToken);
-                return new JwtResponse(accessToken, refreshToken);
-            } else {
-                throw new AuthException("incorrect password");
-            }
-        } catch (AuthException e) {
-            throw new AccessDeniedException(e.getMessage());
+        val user = userService.getEntityByLogin(authRequest.getLogin());
+        if (!user.getEnabled()) {
+            throw new AccessDeniedException("access blocked");
+        }
+        if (PASSWORD_ENCODER.matches(authRequest.getPassword(), user.getPassword())) {
+            val accessToken = jwtProvider.generateAccessToken(user);
+            val refreshToken = jwtProvider.generateRefreshToken(user);
+            refreshStorage.put(user.getLogin(), refreshToken);
+            return new JwtResponse(accessToken, refreshToken);
+        } else {
+            throw new AccessDeniedException("incorrect password");
         }
     }
 
     public JwtResponse getAccessToken(@NonNull String refreshToken) {
-        try {
-            if (jwtProvider.validateRefreshToken(refreshToken)) {
-                val claims = jwtProvider.getRefreshClaims(refreshToken);
-                val login = claims.getSubject();
-                val saveRefreshToken = refreshStorage.get(login);
-                if (saveRefreshToken != null && saveRefreshToken.equals(refreshToken)) {
-                    val user = userService.getByLogin(login)
-                            .orElseThrow(() -> new AuthException("User not found"));
-                    val accessToken = jwtProvider.generateAccessToken(user);
-                    return new JwtResponse(accessToken, null);
-                }
+        if (jwtProvider.validateRefreshToken(refreshToken)) {
+            val claims = jwtProvider.getRefreshClaims(refreshToken);
+            val login = claims.getSubject();
+            val saveRefreshToken = refreshStorage.get(login);
+            if (saveRefreshToken != null && saveRefreshToken.equals(refreshToken)) {
+                val user = userService.getEntityByLogin(login);
+                val accessToken = jwtProvider.generateAccessToken(user);
+                return new JwtResponse(accessToken, null);
             }
-            return new JwtResponse(null, null);
-        } catch (AuthException e) {
-            throw new AccessDeniedException(e.getMessage());
         }
+        return new JwtResponse(null, null);
     }
 
     public JwtResponse refresh(@NonNull String refreshToken) {
-        try {
-            if (jwtProvider.validateRefreshToken(refreshToken)) {
-                val claims = jwtProvider.getRefreshClaims(refreshToken);
-                val login = claims.getSubject();
-                val saveRefreshToken = refreshStorage.get(login);
-                if (saveRefreshToken != null && saveRefreshToken.equals(refreshToken)) {
-                    val user = userService.getByLogin(login)
-                            .orElseThrow(() -> new AuthException("User not found"));
-                    val accessToken = jwtProvider.generateAccessToken(user);
-                    val newRefreshToken = jwtProvider.generateRefreshToken(user);
-                    refreshStorage.put(user.getLogin(), newRefreshToken);
-                    return new JwtResponse(accessToken, newRefreshToken);
-                }
+        if (jwtProvider.validateRefreshToken(refreshToken)) {
+            val claims = jwtProvider.getRefreshClaims(refreshToken);
+            val login = claims.getSubject();
+            val saveRefreshToken = refreshStorage.get(login);
+            if (saveRefreshToken != null && saveRefreshToken.equals(refreshToken)) {
+                val user = userService.getEntityByLogin(login);
+                val accessToken = jwtProvider.generateAccessToken(user);
+                val newRefreshToken = jwtProvider.generateRefreshToken(user);
+                refreshStorage.put(user.getLogin(), newRefreshToken);
+                return new JwtResponse(accessToken, newRefreshToken);
             }
-            throw new AuthException("Invalid JWT token");
-        } catch (AuthException e) {
-            throw new AccessDeniedException(e.getMessage());
         }
+        throw new AccessDeniedException("Invalid JWT token");
+    }
+
+    public void BlockAccess(String login) {
+        refreshStorage.remove(login);
     }
 
     public JwtAuthentication getAuthInfo() {

@@ -40,11 +40,9 @@ public class UserBonusController {
     )
     @PostMapping("/register_ba")
     public ResponseEntity<BonusAccountDto> registerBonusAcc() {
-        val account = BonusAccountDto.builder()
-                .username(authService.getAuthInfo().getLogin())
-                .build();
-        log.info("register {}", account.getUsername());
-        val created = bonusService.createBonusAccount(account);
+        val userId = authService.getAuthInfo().getUserId();
+        log.info("user {} register bonusAcc", userId);
+        val created = bonusService.createBonusAccount(userId);
         URI uriOfNewResource = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("/admin/bonus_accounts/{id}")
                 .buildAndExpand(created.getId()).toUri();
@@ -59,7 +57,7 @@ public class UserBonusController {
     public BonusAccountDto getAccount() {
         val authInfo = authService.getAuthInfo();
         log.info("get bonus account by user {}", authInfo.getLogin());
-        return bonusService.getBonusAccountByName(authInfo.getLogin());
+        return bonusService.getBonusAccountByLogin(authInfo.getLogin());
     }
 
     @Operation(
@@ -69,13 +67,13 @@ public class UserBonusController {
     )
     @PatchMapping("/bonus")
     public void spendPoints(@Valid @RequestBody BonusOperationDto bonusOperationDto) {
-        val authInfo = authService.getAuthInfo();
-        log.info("deduct points from Account {} - > {}", authInfo.getLogin(), bonusOperationDto.toString());
+        val userId = authService.getAuthInfo().getUserId();
+        log.info("deduct points from user {} - > {}", userId, bonusOperationDto.toString());
         if (bonusOperationDto.getChange().compareTo(BigDecimal.ZERO) > 0) {
             throw new IllegalAccrualOperation("This operation must be a debit operation. " +
                     "The transferred value of points must not be greater than 0.");
         }
-        bonusService.startOperation(authInfo.getLogin(), bonusOperationDto);
+        bonusService.processOperation(userId, bonusOperationDto);
     }
 
     @Operation(

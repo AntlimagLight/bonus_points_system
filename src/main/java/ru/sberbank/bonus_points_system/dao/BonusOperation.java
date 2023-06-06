@@ -1,6 +1,5 @@
 package ru.sberbank.bonus_points_system.dao;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,7 +25,6 @@ public class BonusOperation {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bonus_accounts", nullable = false)
     @ToString.Exclude
-    @JsonIgnore
     private BonusAccount account;
 
     @Column(name = "description", updatable = false)

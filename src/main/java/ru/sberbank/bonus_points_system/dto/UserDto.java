@@ -29,26 +29,34 @@ public class UserDto {
     private Long id;
     @NotBlank
     @Size(min = 3, max = 128)
-    @Schema(example = "Иван")
+    @Schema(example = "Василий")
     private String name;
     @NotNull
     @Size(min = 3, max = 256)
-    @Schema(example = "admin")
+    @Schema(example = "user2")
     private String login;
     @NotBlank
+    @NotNull
     @Size(min = 4, max = 256)
-    @Schema(accessMode = Schema.AccessMode.WRITE_ONLY, example = "admin56")
+    @Schema(accessMode = Schema.AccessMode.WRITE_ONLY, example = "password_789")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
     @Email
     @NotBlank
     @Schema(example = "email@gmail.com")
     private String email;
+    @Schema(example = """
+            [
+                "USER",
+                "OPERATOR"
+            ]
+            """)
     @Enumerated(EnumType.STRING)
     private Set<Role> roles;
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private LocalDate registered;
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     private Boolean enabled;
 

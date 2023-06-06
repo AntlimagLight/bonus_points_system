@@ -32,9 +32,9 @@ public class AdminBonusController {
             description = "Administrator registers a new bonus account"
     )
     @PostMapping
-    public ResponseEntity<BonusAccountDto> createAccount(@Valid @RequestBody BonusAccountDto account) {
-        log.info("create {}", account.getUsername());
-        val created = bonusService.createBonusAccount(account);
+    public ResponseEntity<BonusAccountDto> createAccount(@Valid @RequestParam Long userId) {
+        log.info("create acc for user {}", userId);
+        val created = bonusService.createBonusAccount(userId);
         URI uriOfNewResource = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("/admin/bonus_accounts/{id}")
                 .buildAndExpand(created.getId()).toUri();
@@ -42,33 +42,22 @@ public class AdminBonusController {
     }
 
     @Operation(
-            summary = "Update Account",
-            description = "Administrator updates the bonus account data without affecting the number of bonuses"
-    )
-    @PutMapping("/{id}")
-    public void updateAccount(@PathVariable @Parameter(example = "1") Long id, @Valid @RequestBody BonusAccountDto account) {
-        log.info("update {}", id);
-        bonusService.updateBonusAccount(id, account);
-    }
-
-    @Operation(
             summary = "Perform Operation",
             description = "Administrator performs the operation of accruing or debiting bonuses " +
-                    "for an account with the specified ID"
+                    "for with the specified User ID"
     )
-    @PatchMapping("/{id}")
-    public void performOperation(@PathVariable @Parameter(example = "1") Long id,
+    @PatchMapping("/{userId}")
+    public void performOperation(@PathVariable @Parameter(example = "1") Long userId,
                                  @Valid @RequestBody BonusOperationDto bonusOperationDto) {
-        log.info("operation with Account {} - > {}", id, bonusOperationDto.toString());
-        bonusService.startOperation(id, bonusOperationDto);
+        log.info("operation with Account {} - > {}", userId, bonusOperationDto.toString());
+        bonusService.processOperation(userId, bonusOperationDto);
     }
 
     @Operation(
             summary = "Delete Account",
-            description = "Administrator deletes account with the specified ID"
+            description = "Administrator deletes account with the specified ID of account"
     )
     @DeleteMapping("/{id}")
-    @SecurityRequirement(name = "Bearer Authentication")
     public void deleteAccount(@PathVariable @Parameter(example = "1") Long id) {
         log.info("deleted {}", id);
         bonusService.deleteBonusAccount(id);

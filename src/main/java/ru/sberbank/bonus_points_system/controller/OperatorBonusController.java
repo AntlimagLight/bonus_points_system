@@ -36,29 +36,29 @@ public class OperatorBonusController {
     }
 
     @Operation(
-            summary = "Get account by Name",
-            description = "Operator receives data about the account of the user with the specified username"
+            summary = "Get account by Login",
+            description = "Operator receives data about the account of the user with the specified user login"
     )
     @GetMapping("/by-name")
-    public BonusAccountDto getAccountByName(@RequestParam @Parameter(example = "User1") String userName) {
+    public BonusAccountDto getAccountByLogin(@RequestParam @Parameter(example = "user") String userName) {
         log.info("get {}", userName);
-        return bonusService.getBonusAccountByName(userName);
+        return bonusService.getBonusAccountByLogin(userName);
     }
 
     @Operation(
             summary = "Spend Points",
-            description = "Operator writes off a certain amount of points from the user's account with the specified ID." +
+            description = "Operator debit points from the user's account with the specified user ID." +
                     " The score cannot be less than 0."
     )
-    @PatchMapping("/{id}")
-    public void spendPoints(@PathVariable @Parameter(example = "1") Long id,
+    @PatchMapping("/{userId}")
+    public void spendPoints(@PathVariable @Parameter(example = "1") Long userId,
                             @Valid @RequestBody BonusOperationDto bonusOperationDto) {
-        log.info("deduct points from Account {} - > {}", id, bonusOperationDto.toString());
+        log.info("deduct points from Account {} - > {}", userId, bonusOperationDto.toString());
         if (bonusOperationDto.getChange().compareTo(BigDecimal.ZERO) > 0) {
             throw new IllegalAccrualOperation("This operation must be a debit operation. " +
                     "The transferred value of points must not be greater than 0.");
         }
-        bonusService.startOperation(id, bonusOperationDto);
+        bonusService.processOperation(userId, bonusOperationDto);
     }
 
 }

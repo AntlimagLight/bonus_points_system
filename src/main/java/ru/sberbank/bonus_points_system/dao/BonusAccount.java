@@ -1,6 +1,5 @@
 package ru.sberbank.bonus_points_system.dao;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,15 +16,16 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @ToString
-@Table(name = "bonus_accounts", indexes = @Index(columnList = "username", name = "username_idx", unique = true))
+@Table(name = "bonus_accounts")
 public class BonusAccount {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "username", nullable = false)
-    private String username;
+    @OneToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User user;
 
     @Column(name = "bonus", nullable = false)
     @Range(min = 0)
@@ -40,6 +40,5 @@ public class BonusAccount {
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "account")
     @OrderBy("dateTime DESC")
     @ToString.Exclude
-    @JsonIgnore
     private List<BonusOperation> operations;
 }

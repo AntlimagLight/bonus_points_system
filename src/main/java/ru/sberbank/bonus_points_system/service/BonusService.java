@@ -18,6 +18,7 @@ import ru.sberbank.bonus_points_system.mapper.BonusAccountMapper;
 import ru.sberbank.bonus_points_system.mapper.BonusOperationMapper;
 import ru.sberbank.bonus_points_system.repository.BonusAccountRepository;
 import ru.sberbank.bonus_points_system.repository.BonusOperationRepository;
+import ru.sberbank.bonus_points_system.repository.UserRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -34,25 +35,29 @@ public class BonusService {
 
     private final BonusAccountRepository bonusAccountRepository;
     private final BonusOperationRepository bonusOperationRepository;
+
+    private final UserRepository userRepository;
     private final BonusAccountMapper bonusAccountMapper;
     private final BonusOperationMapper bonusOperationMapper;
 
     @Transactional
-    public BonusAccountDto createBonusAccount(BonusAccountDto bonusAccountDto) {
-        assertNotExistence(bonusAccountRepository.findByUsername(bonusAccountDto.getUsername()),
-                "Account with this name already exist");
-        bonusAccountDto.setId(null);
-        bonusAccountDto.setLastUpdate(ZonedDateTime.of(LocalDateTime.now(),
-                ZoneId.of("Europe/Moscow")).toLocalDateTime());
-        bonusAccountDto.setBonus(new BigDecimal(0));
-        bonusAccountDto.setVersion(0);
-        return bonusAccountMapper.toDto(bonusAccountRepository.save(bonusAccountMapper.toDao(bonusAccountDto)));
+    public BonusAccountDto createBonusAccount(Long user_id) {
+        val user = userRepository.getReferenceById(user_id);
+        assertNotExistence(bonusAccountRepository.findByUser(user),
+                "Account with this user already exist");
+        val newAcc = new BonusAccount();
+        newAcc.setId(null);
+        newAcc.setLastUpdate(ZonedDateTime.of(LocalDateTime.now(), ZoneId.of("Europe/Moscow")).toLocalDateTime());
+        newAcc.setBonus(new BigDecimal(0));
+        newAcc.setVersion(0);
+        newAcc.setUser(user);
+        return bonusAccountMapper.toDto(bonusAccountRepository.save(newAcc));
     }
 
     @Transactional(readOnly = true)
-    public BonusAccountDto getBonusAccountByName(String userName) {
-        return bonusAccountMapper.toDto(assertExistence(bonusAccountRepository.findByUsername(userName),
-                "Account with this name not found"));
+    public BonusAccountDto getBonusAccountByLogin(String userLogin) {
+        return bonusAccountMapper.toDto(assertExistence(bonusAccountRepository.findByUser(
+                userRepository.getReferenceByLogin(userLogin)), "Account with this login not found"));
     }
 
     @Transactional(readOnly = true)
@@ -62,23 +67,15 @@ public class BonusService {
     }
 
     @Transactional
-    public void updateBonusAccount(Long id, BonusAccountDto bonusAccountDto) {
-        val account = assertExistence(bonusAccountRepository.findById(id), "Account with this ID");
-        account.setUsername(bonusAccountDto.getUsername());
-        account.setVersion(account.getVersion() + 1);
-        account.setLastUpdate(ZonedDateTime.of(LocalDateTime.now(), ZoneId.of("Europe/Moscow")).toLocalDateTime());
-    }
-
-    @Transactional
     public void deleteBonusAccount(Long id) {
         assertExistence(bonusAccountRepository.findById(id), "Account with this ID not found");
         bonusAccountRepository.deleteById(id);
     }
 
     @Transactional(readOnly = true)
-    public PageOfBonusOperation getOperationHistory(String username, LocalDateTime startTime, LocalDateTime endTime,
+    public PageOfBonusOperation getOperationHistory(String login, LocalDateTime startTime, LocalDateTime endTime,
                                                     Pageable pageable) {
-        val account = bonusAccountRepository.getReferenceByUsername(username);
+        val account = bonusAccountRepository.getReferenceByUser(userRepository.getReferenceByLogin(login));
         val page = bonusOperationRepository
                 .findAllByAccountAndDateTimeAfterAndDateTimeBefore(account, startTime, endTime, pageable)
                 .map(bonusOperationMapper::toDto);
@@ -90,20 +87,9 @@ public class BonusService {
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public void startOperation(Long id, BonusOperationDto operationDto) {
-        val account = assertExistence(bonusAccountRepository.findById(id),
-                "Account with this ID not found");
-        processOperation(account, operationDto);
-    }
-
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public void startOperation(String username, BonusOperationDto operationDto) {
-        val account = assertExistence(bonusAccountRepository.findByUsername(username),
+    public void processOperation(Long userId, BonusOperationDto operationDto) {
+        val account = assertExistence(bonusAccountRepository.findByUser(userRepository.getReferenceById(userId)),
                 "Account with this username not found");
-        processOperation(account, operationDto);
-    }
-
-    private void processOperation(BonusAccount account, BonusOperationDto operationDto) {
         val time = ZonedDateTime.of(LocalDateTime.now(), ZoneId.of("Europe/Moscow")).toLocalDateTime();
         val operation = bonusOperationMapper.toDao(operationDto);
         operation.setAccount(account);

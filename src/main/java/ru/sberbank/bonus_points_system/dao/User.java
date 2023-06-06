@@ -22,7 +22,7 @@ public class User {
     private Long id;
     @Column(name = "name")
     private String name;
-    @Column(name = "login", nullable = false)
+    @Column(name = "login", nullable = false, updatable = false)
     private String login;
     @Column(name = "password", nullable = false)
     private String password;
@@ -39,12 +39,16 @@ public class User {
     private LocalDate registered;
     @Column(name = "enabled", nullable = false)
     private Boolean enabled;
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
+    @ToString.Exclude
+    private BonusAccount bonusAccount;
 
-    public User(Long id, String name, String login, String password, String email, LocalDate registered, Role... roles) {
-        this(id, name, login, password, email, registered, Arrays.asList((roles)));
+    public User(Long id, String name, String login, String password, String email, LocalDate registered, Boolean enabled,
+                Role... roles) {
+        this(id, name, login, password, email, registered, enabled, Arrays.asList((roles)));
     }
 
-    public User(Long id, String name, String login, String password, String email, LocalDate registered,
+    public User(Long id, String name, String login, String password, String email, LocalDate registered, Boolean enabled,
                 Collection<Role> roles) {
         this.id = id;
         this.name = name;
@@ -52,12 +56,12 @@ public class User {
         this.password = password;
         this.email = email;
         this.registered = registered;
-        this.enabled = true;
+        this.enabled = enabled;
         setRoles(new HashSet<>(roles));
     }
 
-    public User(Long id, String name, String login, String password, String email, LocalDate registered) {
-        this(id, name, login, password, email, registered, Collections.emptyList());
+    public User(Long id, String name, String login, String password, String email, Boolean enabled, LocalDate registered) {
+        this(id, name, login, password, email, registered, enabled, Collections.emptyList());
     }
 
 }
