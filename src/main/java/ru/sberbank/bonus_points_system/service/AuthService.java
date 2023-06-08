@@ -33,7 +33,7 @@ public class AuthService {
     public JwtResponse login(@NonNull JwtRequest authRequest) {
         val user = userService.getEntityByLogin(authRequest.getLogin());
         if (!user.getEnabled()) {
-            throw new AccessDeniedException("access blocked");
+            throw new AccessDeniedException("Access blocked");
         }
         if (PASSWORD_ENCODER.matches(authRequest.getPassword(), user.getPassword())) {
             val accessToken = jwtProvider.generateAccessToken(user);
@@ -41,7 +41,7 @@ public class AuthService {
             refreshStorage.put(user.getLogin(), refreshToken);
             return new JwtResponse(accessToken, refreshToken);
         } else {
-            throw new AccessDeniedException("incorrect password");
+            throw new AccessDeniedException("Incorrect password");
         }
     }
 
@@ -56,7 +56,7 @@ public class AuthService {
                 return new JwtResponse(accessToken, null);
             }
         }
-        return new JwtResponse(null, null);
+        throw new AccessDeniedException("Invalid JWT token");
     }
 
     public JwtResponse refresh(@NonNull String refreshToken) {

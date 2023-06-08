@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.sberbank.bonus_points_system.dao.BonusAccount;
 import ru.sberbank.bonus_points_system.dto.BonusAccountDto;
@@ -64,12 +63,6 @@ public class BonusService {
     public BonusAccountDto getBonusAccountById(Long id) {
         return bonusAccountMapper.toDto(assertExistence(bonusAccountRepository.findById(id),
                 "Account with this ID not found"));
-    }
-
-    @Transactional
-    public void deleteBonusAccount(Long id) {
-        assertExistence(bonusAccountRepository.findById(id), "Account with this ID not found");
-        bonusAccountRepository.deleteById(id);
     }
 
     @Transactional(readOnly = true)

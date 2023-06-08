@@ -16,4 +16,6 @@ public interface BonusOperationRepository extends JpaRepository<BonusOperation, 
     Page<BonusOperation> findAllByAccountAndDateTimeAfterAndDateTimeBefore(BonusAccount account, LocalDateTime startTime,
                                                                            LocalDateTime endTime, Pageable pageable);
 
+    BonusOperation findByExternalID(String externalID);
+
 }

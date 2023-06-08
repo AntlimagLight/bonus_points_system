@@ -1,10 +1,7 @@
 package ru.sberbank.bonus_points_system.dao;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.validator.constraints.Range;
 
 import java.math.BigDecimal;
@@ -15,6 +12,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @ToString
 @Table(name = "bonus_accounts")
 public class BonusAccount {

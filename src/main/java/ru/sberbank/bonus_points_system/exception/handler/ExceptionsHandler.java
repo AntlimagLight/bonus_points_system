@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import ru.sberbank.bonus_points_system.exception.*;
 
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-
 @Slf4j
 @ControllerAdvice
 public class ExceptionsHandler {

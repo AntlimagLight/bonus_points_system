@@ -52,9 +52,8 @@ public class AuthController {
                     "access token (valid for 10 minutes) and refresh token (valid for 30 days)."
     )
     @PostMapping("/login")
-    public ResponseEntity<JwtResponse> login(@RequestBody JwtRequest authRequest) {
-        val token = authService.login(authRequest);
-        return ResponseEntity.ok(token);
+    public JwtResponse login(@RequestBody JwtRequest authRequest) {
+        return authService.login(authRequest);
     }
 
     @Operation(
@@ -62,9 +61,8 @@ public class AuthController {
             description = "Enter your valid refresh token to get a new access token (valid for 10 minutes)."
     )
     @PostMapping("/token")
-    public ResponseEntity<JwtResponse> getNewAccessToken(@RequestBody RefreshJwtRequest request) {
-        val token = authService.getAccessToken(request.getRefreshToken());
-        return ResponseEntity.ok(token);
+    public JwtResponse getNewAccessToken(@RequestBody RefreshJwtRequest request) {
+        return authService.getAccessToken(request.getRefreshToken());
     }
 
     @Operation(
@@ -75,9 +73,8 @@ public class AuthController {
     @SecurityRequirement(name = "Bearer Authentication")
     @PreAuthorize("hasAuthority('USER')")
     @PostMapping("/refresh")
-    public ResponseEntity<JwtResponse> getNewRefreshToken(@RequestBody RefreshJwtRequest request) {
-        val token = authService.refresh(request.getRefreshToken());
-        return ResponseEntity.ok(token);
+    public JwtResponse getNewRefreshToken(@RequestBody RefreshJwtRequest request) {
+        return authService.refresh(request.getRefreshToken());
     }
 
     @Operation(

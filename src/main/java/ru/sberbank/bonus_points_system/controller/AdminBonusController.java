@@ -53,15 +53,4 @@ public class AdminBonusController {
         bonusService.processOperation(userId, bonusOperationDto);
     }
 
-    @Operation(
-            summary = "Delete Account",
-            description = "Administrator deletes account with the specified ID of account"
-    )
-    @DeleteMapping("/{id}")
-    public void deleteAccount(@PathVariable @Parameter(example = "1") Long id) {
-        log.info("deleted {}", id);
-        bonusService.deleteBonusAccount(id);
-    }
-
-
 }

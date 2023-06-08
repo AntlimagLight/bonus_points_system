@@ -14,4 +14,6 @@ public interface BonusAccountRepository extends JpaRepository<BonusAccount, Long
     Optional<BonusAccount> findByUser(User user);
 
     BonusAccount getReferenceByUser(User user);
+
+    Boolean existsByUser(User user);
 }

@@ -5,7 +5,7 @@ DROP TABLE IF EXISTS service_users;
 
 CREATE TABLE service_users
 (
-    id         BIGSERIAL PRIMARY KEY ,
+    id         BIGSERIAL PRIMARY KEY,
     email      VARCHAR(255),
     enabled    BOOLEAN      NOT NULL,
     login      VARCHAR(255) NOT NULL

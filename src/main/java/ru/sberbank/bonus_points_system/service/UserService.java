@@ -4,19 +4,16 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.sberbank.bonus_points_system.dao.Role;
 import ru.sberbank.bonus_points_system.dao.User;
 import ru.sberbank.bonus_points_system.dto.UserDto;
 import ru.sberbank.bonus_points_system.mapper.UserMapper;
 import ru.sberbank.bonus_points_system.repository.UserRepository;
 import ru.sberbank.bonus_points_system.util.UserUtils;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-import static ru.sberbank.bonus_points_system.config.WebSecurityConfig.PASSWORD_ENCODER;
 import static ru.sberbank.bonus_points_system.util.ValidationUtils.assertExistence;
 import static ru.sberbank.bonus_points_system.util.ValidationUtils.assertNotExistence;
 
